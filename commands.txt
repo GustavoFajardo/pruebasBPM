@@ -1,0 +1,15 @@
+
+set REACT_APP_ENDPOINT=http://172.18.20.19:2100/dcca&& npx react-inject-env set
+
+set REACT_APP_ENDPOINT=http://192.168.1.126:7070/dcca&& npx react-inject-env set 
+
+set REACT_APP_ENDPOINT=http://192.168.1.111:8080/dcca&& npx react-inject-env set 
+
+set REACT_APP_ENDPOINT=http://server1.orangecloud.com.co/quickbpm&& npx react-inject-env set 
+
+
+
+REACT_APP_ENDPOINT=http://192.168.1.126:7070/dcca
+REACT_APP_ENDPOINT0=http://172.18.20.19:2100/dcca
+REACT_APP_ENDPOINT1=http://172.29.85.11:2100/dcca
+REACT_APP_ENDPOINT2=http://192.168.1.111:8080/dcca
