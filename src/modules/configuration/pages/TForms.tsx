@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { BsFillBookmarkFill, BsFillFileEarmarkRichtextFill, BsPencilSquare, BsPlus, BsTrash } from "react-icons/bs";
+import {
+  BsFillBookmarkFill,
+  BsFillFileEarmarkRichtextFill,
+  BsPencilSquare,
+  BsPlus,
+  BsTrash,
+} from "react-icons/bs";
 import { inputsTheme, useStyles } from "../../../utils/Themes";
-import { Button, ButtonGroup, IconButton, MenuItem, SpeedDial, SpeedDialAction, ThemeProvider, Tooltip } from "@mui/material";
+import {
+  Button,
+  ButtonGroup,
+  IconButton,
+  MenuItem,
+  SpeedDial,
+  SpeedDialAction,
+  ThemeProvider,
+  Tooltip,
+} from "@mui/material";
 
 import {
   Paper,
@@ -25,22 +40,27 @@ import { NoInfo } from "../../../utils/NoInfo";
 import TResponseValue from "./TResponseValue";
 import { JsonPrototypeDialog } from "../components/JsonPrototypeDialog";
 import { SSpinner } from "../../../shared/components/SSpinner";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/Store";
+import { ListDocuments } from "../../../actions/Formulario";
 
 const _adminService = new AdminService();
 
-interface ITForms { }
+interface ITForms {}
 
 const TForms: React.FC<ITForms> = () => {
-
+  const dispatch = useDispatch();
   const [title, setTitle] = useState("");
   const [show, setShow] = useState(false);
   const [showResponseValue, setShowResponseValue] = useState(false);
   const [formdata, setformdata] = useState<DataForm>();
   const [showSpinner, setShowSpinner] = useState(true);
-  const [list, setList] = useState<DataForm[]>([]);
-  const [listTypeForm, setListTypeForm] = useState<TypeForm[]>([]);
+  const [list, setList] = useState<DataForm[]>(
+    []
+  ); /**formularios encontrados */
+  const [listTypeForm, setListTypeForm] = useState<TypeForm[]>(
+    []
+  ); /**tipos de formularios */
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [showDelete, setShowDelete] = useState(false);
@@ -55,6 +75,8 @@ const TForms: React.FC<ITForms> = () => {
     setPage(newPage);
   };
 
+  let listState = useSelector((state: RootState): any => state.formularios);
+  console.log(listState);
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -74,18 +96,24 @@ const TForms: React.FC<ITForms> = () => {
     console.log(data);
     setIDForm(data);
     setShowResponseValue(true);
-  }
+  };
 
   useEffect(() => {
-    getFormClassCatalog(); setRowsPerPage(parseInt(items));;
+    getFormClassCatalog();
+    setRowsPerPage(parseInt(items));
   }, [items]);
 
+  useEffect(() => {
+    setList((prev) => [...listState]);
+    console.log(list);
+  }, [listState]);
   const getFormCatalog = (id: number) => {
     setShowSpinner(true);
+    dispatch(ListDocuments(id));
     _adminService.getFormCatalog(id).subscribe((resp) => {
-      console.log(resp);
       if (resp) {
         setList(resp);
+
         setShowSpinner(false);
       } else {
         Toast.fire({
@@ -98,7 +126,7 @@ const TForms: React.FC<ITForms> = () => {
 
   const getFormClassCatalog = () => {
     setShowSpinner(true);
-    _adminService.getFormClassCatalog().subscribe(resp => {
+    _adminService.getFormClassCatalog().subscribe((resp) => {
       console.log(resp);
       if (resp) {
         setListTypeForm(resp);
@@ -113,25 +141,23 @@ const TForms: React.FC<ITForms> = () => {
   };
 
   const deleteForm = () => {
-    _adminService
-      .deleteForm(idDelete)
-      .subscribe(rps => {
-        console.log(rps);
-        if (rps) {
-          console.log(selector);
-          setShowSpinner(false);
-          getFormCatalog(selector);
-          Toast.fire({
-            icon: "success",
-            title: "Se ha eliminado con éxito!",
-          });
-        } else {
-          Toast.fire({
-            icon: "error",
-            title: "No se ha cargado la información",
-          });
-        }
-      })
+    _adminService.deleteForm(idDelete).subscribe((rps) => {
+      console.log(rps);
+      if (rps) {
+        console.log(selector);
+        setShowSpinner(false);
+        getFormCatalog(selector);
+        Toast.fire({
+          icon: "success",
+          title: "Se ha eliminado con éxito!",
+        });
+      } else {
+        Toast.fire({
+          icon: "error",
+          title: "No se ha cargado la información",
+        });
+      }
+    });
   };
 
   const viewModal = () => {
@@ -156,7 +182,7 @@ const TForms: React.FC<ITForms> = () => {
   const handleShowJson = (json: string) => {
     setResponseJsonSelected(json);
     setShowDialog(true);
-  }
+  };
 
   const classes = useStyles();
 
@@ -175,9 +201,7 @@ const TForms: React.FC<ITForms> = () => {
               <div className="page-header-content pt-4 pb-10">
                 <div className="row align-items-center justify-content-between">
                   <div className="col-auto mt-4">
-                    <h1>
-                      Formularios
-                    </h1>
+                    <h1>Formularios</h1>
                   </div>
                 </div>
               </div>
@@ -193,14 +217,10 @@ const TForms: React.FC<ITForms> = () => {
                   fullWidth
                   label=".:Seleccione un tipo:."
                   id="state"
-                  onChange={(e) =>
-                    onChangeComponent(e.target.value)
-                  }
+                  onChange={(e) => onChangeComponent(e.target.value)}
                 >
-                  {listTypeForm.map(item => (
-                    <MenuItem value={item.IDFormClass}>
-                      {item.Name}
-                    </MenuItem>
+                  {listTypeForm.map((item) => (
+                    <MenuItem value={item.IDFormClass}>{item.Name}</MenuItem>
                   ))}
                 </TextField>
               </div>
@@ -210,166 +230,179 @@ const TForms: React.FC<ITForms> = () => {
                 <div className="row justify-content-end">
                   <div className="col-md-6 d-flex justify-content-end mr-5">
                     <div className="form-group">
-                      {(selector !== -1) && <button
-                        className="btn btn-sm btn-outline-secondary btn-custom"
-                        type="button"
-                        onClick={() => {
-                          formComponent("Crear");
-                        }}
-                      >
-                        <BsPlus />
-                      </button>}
+                      {selector !== -1 && (
+                        <button
+                          className="btn btn-sm btn-outline-secondary btn-custom"
+                          type="button"
+                          onClick={() => {
+                            formComponent("Crear");
+                          }}
+                        >
+                          <BsPlus />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-              {showSpinner ?
+              {showSpinner ? (
                 <SSpinner show={showSpinner} />
-                : (list.length > 0) ?
-                  (<Paper sx={{ width: "100%", overflow: "hidden" }}>
-                    <TableContainer sx={{ height: "70vh" }}>
-                      <Table
-                        stickyHeader
-                        aria-label="sticky table"
-                        className={classes.root}
-                      >
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Codigo</TableCell>
-                            <TableCell>Nombre</TableCell>
-                            <TableCell>Descripción</TableCell>
-                            <TableCell>Url del Formulario</TableCell>
-                            <TableCell>Prototipo Json</TableCell>
-                            <TableCell>Acciones</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {list
-                            .slice(
-                              page * rowsPerPage,
-                              page * rowsPerPage + rowsPerPage
-                            )
-                            .map((item: any, index: number) => (
-                              <TableRow hover role="checkbox" tabIndex={-1}>
-                                <TableCell>{item.IDForm}</TableCell>
-                                <TableCell>{item.Code}</TableCell>
-                                <TableCell>{item.Name}</TableCell>
-                                <TableCell>{item.Description}</TableCell>
-                                <TableCell>{item.FormURLComponent}</TableCell>
-                                <TableCell >
-                                  <ThemeProvider theme={inputsTheme}>
-                                    <IconButton
-                                      color="secondary"
-                                      onClick={() => (handleShowJson(item.ResponseJsonValue), setIDForm(item.IDForm))}
-                                    ><BsFillFileEarmarkRichtextFill />
-                                    </IconButton>
-                                  </ThemeProvider>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="d-lg-flex d-none">
-                                    <ButtonGroup>
-                                      <ThemeProvider theme={inputsTheme}>
-                                        <Tooltip title="Variables de respuesta">
-                                          <Button
-                                            variant="contained"
-                                            className="box-s mr-1 mt-2 mb-2"
-                                            color="secondary"
-                                            onClick={() => {
-                                              openResponseValue(item.IDForm);
-                                            }}>
-                                            <BsFillBookmarkFill />
-                                          </Button>
-                                        </Tooltip>
-                                      </ThemeProvider>
-                                      <ThemeProvider theme={inputsTheme}>
-                                        <Tooltip title="Editar elemento">
-                                          <Button
-                                            variant="contained"
-                                            className="box-s mr-1 mt-2 mb-2"
-                                            color="secondary"
-                                            onClick={() => {
-                                              formComponent("Editar", item);
-                                            }}>
-                                            <BsPencilSquare />
-                                          </Button>
-                                        </Tooltip>
-                                      </ThemeProvider>
-                                      <ThemeProvider theme={inputsTheme}>
-                                        <Tooltip title="Eliminar elemento">
-                                          <Button
-                                            variant="contained"
-                                            className="box-s mr-3 mt-2 mb-2"
-                                            color="error"
-                                            onClick={() => {
-                                              setShowDelete(true);
-                                              setIdDelete(item.IDForm);
-                                            }}>
-                                            <BsTrash />
-                                          </Button>
-                                        </Tooltip>
-                                      </ThemeProvider>
-                                    </ButtonGroup>
-                                  </div>
-                                  <div className="d-block d-lg-none">
-                                    <SpeedDial
-                                      ariaLabel="SpeedDial basic example"
-                                      direction="left"
-                                      FabProps={{
-                                        size: "small",
-                                        style: { backgroundColor: "#0d6efd" },
-                                      }}
-                                      icon={<FiMoreVertical />}
-                                    >
-                                      <SpeedDialAction
-                                        key={index}
-                                        sx={{ color: "secondary" }}
-                                        icon={<BsFillBookmarkFill />}
-                                        tooltipTitle="Variables de respuesta"
-                                        onClick={() => {
-                                          openResponseValue(item.IDForm);
-                                        }}
-                                      />
-                                      <SpeedDialAction
-                                        key={index + 1}
-                                        sx={{ color: "secondary" }}
-                                        icon={<BsPencilSquare />}
-                                        tooltipTitle="Editar Formulario"
-                                        onClick={() => {
-                                          formComponent("Editar", item);
-                                        }}
-                                      />
-                                      <SpeedDialAction
-                                        key={index + 2}
-                                        icon={<BsTrash />}
-                                        tooltipTitle="Eliminar"
-                                        onClick={() => {
-                                          setShowDelete(true);
-                                          setIdDelete(item.IDForm);
-                                        }}
-                                      />
-                                    </SpeedDial>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                    <TablePagination
+              ) //opcion dos de rendereizado
+              : list[0].IDForm !== 0 ? (
+                <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                  <TableContainer sx={{ height: "70vh" }}>
+                    <Table
+                      stickyHeader
+                      aria-label="sticky table"
                       className={classes.root}
-                      rowsPerPageOptions={[items, 10, 25, 100]}
-                      labelRowsPerPage="Columnas por Página"
-                      component="div"
-                      count={list.length}
-                      rowsPerPage={rowsPerPage}
-                      page={page}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                  </Paper>)
-                  : (list.length === 0 && selector !== -1) ? <NoInfo /> : ""
-              }
+                    >
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>ID</TableCell>
+                          <TableCell>Codigo</TableCell>
+                          <TableCell>Nombre</TableCell>
+                          <TableCell>Descripción</TableCell>
+                          <TableCell>Url del Formulario</TableCell>
+                          <TableCell>Prototipo Json</TableCell>
+                          <TableCell>Acciones</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {list
+                          .slice(
+                            page * rowsPerPage,
+                            page * rowsPerPage + rowsPerPage
+                          )
+                          .map((item: any, index: number) => (
+                            <TableRow hover role="checkbox" tabIndex={-1}>
+                              <TableCell>{item.IDForm}</TableCell>
+                              <TableCell>{item.Code}</TableCell>
+                              <TableCell>{item.Name}</TableCell>
+                              <TableCell>{item.Description}</TableCell>
+                              <TableCell>{item.FormURLComponent}</TableCell>
+                              <TableCell>
+                                <ThemeProvider theme={inputsTheme}>
+                                  <IconButton
+                                    color="secondary"
+                                    onClick={() => (
+                                      handleShowJson(item.ResponseJsonValue),
+                                      setIDForm(item.IDForm)
+                                    )}
+                                  >
+                                    <BsFillFileEarmarkRichtextFill />
+                                  </IconButton>
+                                </ThemeProvider>
+                              </TableCell>
+                              <TableCell>
+                                <div className="d-lg-flex d-none">
+                                  <ButtonGroup>
+                                    <ThemeProvider theme={inputsTheme}>
+                                      <Tooltip title="Variables de respuesta">
+                                        <Button
+                                          variant="contained"
+                                          className="box-s mr-1 mt-2 mb-2"
+                                          color="secondary"
+                                          onClick={() => {
+                                            openResponseValue(item.IDForm);
+                                          }}
+                                        >
+                                          <BsFillBookmarkFill />
+                                        </Button>
+                                      </Tooltip>
+                                    </ThemeProvider>
+                                    <ThemeProvider theme={inputsTheme}>
+                                      <Tooltip title="Editar elemento">
+                                        <Button
+                                          variant="contained"
+                                          className="box-s mr-1 mt-2 mb-2"
+                                          color="secondary"
+                                          onClick={() => {
+                                            formComponent("Editar", item);
+                                          }}
+                                        >
+                                          <BsPencilSquare />
+                                        </Button>
+                                      </Tooltip>
+                                    </ThemeProvider>
+                                    <ThemeProvider theme={inputsTheme}>
+                                      <Tooltip title="Eliminar elemento">
+                                        <Button
+                                          variant="contained"
+                                          className="box-s mr-3 mt-2 mb-2"
+                                          color="error"
+                                          onClick={() => {
+                                            setShowDelete(true);
+                                            setIdDelete(item.IDForm);
+                                          }}
+                                        >
+                                          <BsTrash />
+                                        </Button>
+                                      </Tooltip>
+                                    </ThemeProvider>
+                                  </ButtonGroup>
+                                </div>
+                                <div className="d-block d-lg-none">
+                                  <SpeedDial
+                                    ariaLabel="SpeedDial basic example"
+                                    direction="left"
+                                    FabProps={{
+                                      size: "small",
+                                      style: { backgroundColor: "#0d6efd" },
+                                    }}
+                                    icon={<FiMoreVertical />}
+                                  >
+                                    <SpeedDialAction
+                                      key={index}
+                                      sx={{ color: "secondary" }}
+                                      icon={<BsFillBookmarkFill />}
+                                      tooltipTitle="Variables de respuesta"
+                                      onClick={() => {
+                                        openResponseValue(item.IDForm);
+                                      }}
+                                    />
+                                    <SpeedDialAction
+                                      key={index + 1}
+                                      sx={{ color: "secondary" }}
+                                      icon={<BsPencilSquare />}
+                                      tooltipTitle="Editar Formulario"
+                                      onClick={() => {
+                                        formComponent("Editar", item);
+                                      }}
+                                    />
+                                    <SpeedDialAction
+                                      key={index + 2}
+                                      icon={<BsTrash />}
+                                      tooltipTitle="Eliminar"
+                                      onClick={() => {
+                                        setShowDelete(true);
+                                        setIdDelete(item.IDForm);
+                                      }}
+                                    />
+                                  </SpeedDial>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  <TablePagination
+                    className={classes.root}
+                    rowsPerPageOptions={[items, 10, 25, 100]}
+                    labelRowsPerPage="Columnas por Página"
+                    component="div"
+                    count={list.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </Paper>
+              ) : list.length === 0 && selector !== -1 ? (
+                <NoInfo />
+              ) : (
+                ""
+              )}
               {show && (
                 <NEForms
                   getShow={closeModal}
@@ -398,7 +431,7 @@ const TForms: React.FC<ITForms> = () => {
                   title={"¿Está seguro de eliminar el elemento?"}
                 />
               )}
-              {showDialog &&
+              {showDialog && (
                 <JsonPrototypeDialog
                   showDialog={showDialog}
                   setShowDialog={setShowDialog}
@@ -406,7 +439,8 @@ const TForms: React.FC<ITForms> = () => {
                   setResponseJsonSelected={setResponseJsonSelected}
                   IDForm={IDForm}
                   IDJsonService={null}
-                />}
+                />
+              )}
             </div>
           </div>
         </main>

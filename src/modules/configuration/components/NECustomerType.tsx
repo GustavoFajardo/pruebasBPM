@@ -27,6 +27,7 @@ export const NECustomerType: React.FC<INECustomerType> = (props: INECustomerType
         setValue,
         handleSubmit
     } = useForm();
+    
     const updateCustomerType = (bean: ICustomerType) => {
         _configService.updateCustomerType(bean).subscribe((res) => {
             if (res) {

@@ -78,3 +78,7 @@ export const TypesPermiso = {
 
 }
 
+export const typesForm={
+  selected:'[Formularios] selected type',
+  restart:'[Formularios] restart'
+}

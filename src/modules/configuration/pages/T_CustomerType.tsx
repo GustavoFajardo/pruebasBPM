@@ -92,7 +92,7 @@ export const T_CustomerType: React.FC<ICustomerType> = () => {
     const changeFilter = (e: any) => {
         setGlobalFilter(e.value);
     }
-    const leftToolbarTemplate = () => {
+     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
                 <Button

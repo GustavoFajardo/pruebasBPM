@@ -50,6 +50,7 @@ import { TProductKind } from "./modules/weapons/pages/TProductKind";
 import { TProduct } from "./modules/weapons/pages/TProduct";
 import { TloadStore } from "./modules/weapons/pages/TloadStore";
 import { TPushStore } from "./modules/weapons/components/TPushStore";
+import { T_CharacterizationPrueba } from "./modules/configuration/pages/T_CharacterizationPrueba";
 
 interface IApp { }
 
@@ -98,7 +99,6 @@ export const App: React.FC<IApp> = () => {
               <Route exact path="/kindProcedure" component={TKindProcedure} />
               <Route exact path="/procedure" component={T_Procedure} />
               <Route exact path="/process" component={T_BusinesProcess} />
-              <Route exact path="/login" component={P_Login} />
               <Route exact path="/suscription" component={TSuscription} />
               <Route exact path="/trayDocumentsForVerify" component={TTrayForVerify} />
               <Route exact path="/adminMenu" component={TAdminMMR} />
@@ -111,11 +111,11 @@ export const App: React.FC<IApp> = () => {
               <Route exact path="/history-process" component={THistoryProcess} />
               <Route exact path="/Office" component={TOficce} />
               <Route exact path="/type-forms" component={TTypeForms} />
-              <Route exact path="/forms" component={TForms} />
+              <Route exact path="/forms"  render={()=><TForms/>} />
               <Route exact path="/json-service-class" component={TJsonServiceClass} />
               <Route exact path="/json-service" component={TJsonService} />
               <Route exact path="/customer-type" component={T_CustomerType} />
-              <Route exact path="/characterization" component={T_Characterization} />
+              <Route exact path="/characterization" component={T_CharacterizationPrueba} />
               <Route exact path="/category-resource" component={TCategoryResource} />
               <Route exact path="/resource" component={TResource} />
               <Route exact path="/news" component={TNew} />
